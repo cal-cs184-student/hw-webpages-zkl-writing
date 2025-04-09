@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }
+    /* Increased font sizes for all text elements */
+    body {
+      font-size: 28px;
+    }
+    h1 {
+      font-size: 32px;
+    }
+    h2 {
+      font-size: 48px;
+    }
+    h3 {
+      font-size: 34px;
+    }
+    p, li, ul {
+      font-size: 28px;
+    }
+    .padded p {
+      font-size: 28px;
+    }
+    div p {
+      font-size: 28px;
+    }
+</style> 
+<title>Fangzhou Zhao |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 3-2: Additional Features to PathTracer</h1>
+    <h2 align="middle">Fangzhou Zhao</h2>
+    
+    <div align="middle">
+        <br>
+        Link to webpage: <a href="https://cal-cs184-student.github.io/hw-webpages-zkl-writing/">https://cal-cs184-student.github.io/hw-webpages-zkl-writing/</a>
+        <br>
+        
+    </div>
+
+    <div class="padded">
+        
+        * NOTE: For this project, you will choose TWO out of the four given parts to complete. One of those parts must be Part 1 or Part 2. In other words, you can choose any combination of two parts except the pair (Part 3, Part 4).
+
+
+        <h3 align="middle">Part 1. Mirror and Glass Materials</h3>
+
+        <p><b>
+            Show a sequence of six images of scene `CBspheres.dae` rendered with `max_ray_depth` set to 0, 1, 2, 3, 4, 5, and 100. The other settings should be at least 64 samples per pixel and 4 samples per light. Make sure to include all screenshots.
+        </b></p>
+        <p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+        <div style="text-align: center;">
+            <img src="spheres_depth_0.png" alt="CBspheres max_ray_depth 0" style="width: 100%; max-width: 800px;">
+            <p>CBspheres rendered with max_ray_depth=0</p>
+        </div>
+        <div style="text-align: center;">
+            <img src="spheres_depth_1.png" alt="CBspheres max_ray_depth 1" style="width: 100%; max-width: 800px;">
+            <p>CBspheres rendered with max_ray_depth=1</p>
+        </div>
+        <div style="text-align: center;">
+            <img src="spheres_depth_2.png" alt="CBspheres max_ray_depth 2" style="width: 100%; max-width: 800px;">
+            <p>CBspheres rendered with max_ray_depth=2</p>
+        </div>
+        <div style="text-align: center;">
+            <img src="spheres_depth_3.png" alt="CBspheres max_ray_depth 3" style="width: 100%; max-width: 800px;">
+            <p>CBspheres rendered with max_ray_depth=3</p>
+        </div>
+        <div style="text-align: center;">
+            <img src="spheres_depth_4.png" alt="CBspheres max_ray_depth 4" style="width: 100%; max-width: 800px;">
+            <p>CBspheres rendered with max_ray_depth=4</p>
+        </div>
+        <div style="text-align: center;">
+            <img src="spheres_depth_5.png" alt="CBspheres max_ray_depth 5" style="width: 100%; max-width: 800px;">
+            <p>CBspheres rendered with max_ray_depth=5</p>
+        </div>
+        <div style="text-align: center;">
+            <img src="spheres_depth_100.png" alt="CBspheres max_ray_depth 100" style="width: 100%; max-width: 800px;">
+            <p>CBspheres rendered with max_ray_depth=100</p>
+        </div>
+    </div>
+</p>
+        <br>
+        <p><b>
+            Point out the new multibounce effects that appear in each image. 
+        </b></p>
+        <h1>Effect of Ray Depth on Scene Rendering</h1>
+        <p>
+          Looking at this sequence of images showing the <em>CBspheres.dae</em> scene rendered with increasing ray depth values, we can observe how the visual quality and realism develop with each additional light bounce:
+        </p>
+      
+        <h2>Image 1 (max_ray_depth = 0)</h2>
+        <p>
+          This image is almost completely black with just the white light source visible at the top. With ray depth 0, we only see direct emissive surfaces (the light) but no illumination since no rays have bounced off any surfaces.
+        </p>
+      
+        <h2>Image 2 (max_ray_depth = 1)</h2>
+        <p>
+          Here we see the basic scene with direct illumination only. The two spheres appear black because a ray depth of 1 only captures light that travels directly from a light source to a surface and then to the camera. The colored walls (red left, blue right) are visible because they're directly illuminated by the light source.
+        </p>
+      
+        <h2>Image 3 (max_ray_depth = 2)</h2>
+        <p>
+          With ray depth 2, we see the left sphere now shows reflective properties - it's a mirror sphere. This is because rays can now make one additional bounce: from light to surface to another surface to camera. The reflections of the colored walls are visible on the left sphere. The right sphere still appears mostly black because it's a refractive material (like glass) which requires more bounces to properly render.
+        </p>
+      
+        <h2>Image 4 (max_ray_depth = 3)</h2>
+        <p>
+          Both spheres now show their true materials. The left sphere continues to be reflective while the right sphere now appears as a transparent/refractive object. With 3 bounces, light can travel through the refractive sphere, bend, and reach the camera. This is why the right sphere suddenly appears transparent instead of black.
+        </p>
+      
+        <h2>Image 5 (max_ray_depth = 4)</h2>
+        <p>
+          The rendering becomes more refined. With a 4th bounce, light paths can include more complex interactions like: light → wall → reflective sphere → refractive sphere → camera. Notice more subtle reflections and refractions, particularly visible in how the right sphere refracts the room behind it.
+        </p>
+      
+        <h2>Images 6 and 7 (max_ray_depth = 5 and 100)</h2>
+        <p>
+          These images show increasingly subtle refinements as more light bounces are calculated. By ray depth 5, most of the important light interactions in this simple scene have been captured, which is why there's minimal visible difference between depth 5 and depth 100.
+        </p>
+        <br>
+        <p><b>
+            Explain how these bounce numbers relate to the particular effects that appear. Make sure to include all screenshots.
+        </b></p>
+        <p>
+            <ul>
+                <li>The reflective (mirror) sphere requires at least 2 bounces to show its reflective properties</li>
+                <li>The refractive (glass) sphere requires at least 3 bounces to show its transparent nature</li>
+                <li>For the glass material to show both reflection and refraction properly (including Fresnel effects where both reflection and refraction occur simultaneously), at least 4 bounces are needed</li>
+                <li>Each additional bounce captures more subtle indirect illumination effects and color bleeding from the colored walls</li>
+              </ul>
+        </p>
+        <br>
+
+
+        <h3 align="middle">Part 2. Microfacet Material</h3>
+        <p><b>
+            Show a screenshot sequence of 4 images of scene `CBdragon_microfacet_au.dae` rendered with $\alpha$ set to 0.005, 0.05, 0.25 and 0.5. The other settings should be at least 128 samples per pixel and 1 samples per light. The number of bounces should be at least 5. Describe the differences between different images. Note that, to change the $\alpha$, just open the .dae file and search for `microfacet`.
+        </b></p>
+        <p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <img src="dragon_alpha_0.005.png" alt="Dragon with alpha=0.005" style="width: 100%; max-width: 800px;">
+                    <p>Gold dragon rendered with α=0.005</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="dragon_alpha_0.05.png" alt="Dragon with alpha=0.05" style="width: 100%; max-width: 800px;">
+                    <p>Gold dragon rendered with α=0.05</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="dragon_alpha_0.25.png" alt="Dragon with alpha=0.25" style="width: 100%; max-width: 800px;">
+                    <p>Gold dragon rendered with α=0.25</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="dragon_alpha_0.5.png" alt="Dragon with alpha=0.5" style="width: 100%; max-width: 800px;">
+                    <p>Gold dragon rendered with α=0.5</p>
+                </div>
+            </div>
+            
+            <h3>Analysis of Microfacet Model with Different Roughness Parameters</h3>
+            <p>The four images show the CBdragon_microfacet_au.dae scene rendered with increasing roughness values (α), demonstrating how the microfacet BRDF model affects the appearance of metallic surfaces.</p>
+            
+            <h4>Visual Analysis of Roughness Progression</h4>
+            
+            <h5>Image 1 (α = 0.005)</h5>
+            <p>This image shows the gold dragon with a very low roughness value, creating an extremely specular (mirror-like) surface. The reflections are sharp and concentrated, resulting in bright, well-defined highlights. The surface behaves almost like a perfect mirror, with clear reflections of the surrounding Cornell box (red and blue walls).</p>
+            
+            <h5>Image 2 (α = 0.05)</h5>
+            <p>With a slight increase in roughness, the dragon maintains its metallic appearance but with slightly broader specular highlights. The reflections have started to blur somewhat, creating a more polished gold look rather than mirror-like. The dragon still appears very shiny, but with softer edges to the highlights.</p>
+            
+            <h5>Image 3 (α = 0.25)</h5>
+            <p>At this medium roughness value, the specular highlights have spread significantly. The gold material now has a more brushed or satin-like appearance. The reflections are much more diffused, and the overall surface looks less reflective. The dragon has a warmer gold tone as light scatters more broadly across its surface.</p>
+            
+            <h5>Image 4 (α = 0.5)</h5>
+            <p>With the highest roughness value, the dragon exhibits very broad specular highlights with minimal sharp reflections. The surface appears almost matte-like for a metal, resembling brushed or aged gold. Light is scattered widely across the microfacets, creating a softer, more diffuse look while still maintaining the metallic identity.</p>
+            
+            <h4>Technical Explanation</h4>
+            <p>These visual differences directly correspond to the Beckmann normal distribution function (NDF) implemented in the microfacet model:</p>
+            <p>D(h) = e^(-(tan(θ_h)/α)^2) / (π * α^2 * cos^4(θ_h))</p>
+            <p>Where:</p>
+            <ul>
+                <li>A smaller α concentrates the microfacets in alignment with the surface normal</li>
+                <li>A larger α distributes the microfacets in many different directions</li>
+            </ul>
+            
+            <p>This distribution affects how the BRDF scatters incoming light:</p>
+            <ul>
+                <li>With low α values (0.005), almost all microfacets are aligned, causing light to reflect coherently in a single direction</li>
+                <li>With high α values (0.5), microfacets point in many directions, scattering incoming light in multiple directions</li>
+            </ul>
+            
+            <p>The visual appearance also depends on the Fresnel term (F) which determines how much light is reflected based on the viewing angle and the material's optical properties (η and k values for gold), working together with the geometric shadowing term (G) to create the final realistic metal appearance.</p>
+        </p>
+        <br>
+        <p><b>
+            Show two images of scene `CBbunny_microfacet_cu.dae` rendered using cosine hemisphere sampling (default) and your importance sampling. The sampling rate should be fixed at 64 samples per pixel and 1 samples per light. The number of bounces should be at least 5. Briefly discuss their difference.
+        </b></p>
+        <p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <img src="bunny_cosine.png" alt="Bunny with cosine hemisphere sampling" style="width: 100%; max-width: 800px;">
+                    <p>Copper bunny rendered with cosine hemisphere sampling</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="bunny_importance.png" alt="Bunny with importance sampling" style="width: 100%; max-width: 800px;">
+                    <p>Copper bunny rendered with importance sampling</p>
+                </div>
+            </div>
+            
+            <h3>Analysis of Sampling Methods</h3>
+            <h5>Image 1 (Cosine Hemisphere Sampling)</h5>
+            <p>This image exhibits considerably more noise, especially in the specular reflections. The bunny's surface appears grainy and less defined. The reflections of the room are blurrier and more scattered, and the overall material quality appears less metallic and more diffuse-like due to the noise.</p>
+            
+            <h5>Image 2 (Importance Sampling)</h5>
+            <p>This image shows significantly less noise and more defined specular reflections. The copper material appears smoother and more realistic, with clearer reflections of the colored walls (red and blue) on the bunny's surface. The highlights are sharper and more accurate, giving the material a convincing metallic appearance.</p>
+            
+            
+            
+            <h4>Technical Explanation of the Difference</h4>
+            <p>The visual difference demonstrates why importance sampling is crucial for efficiently rendering materials with microfacet BRDFs:</p>
+            
+            <ul>
+                <li><strong>Sampling Efficiency:</strong> Importance sampling concentrates samples in directions that matter most for specular materials - specifically following the Beckmann distribution that models the microfacet orientations. This means more samples are used where they contribute significantly to the final image.</li>
+                <li><strong>Noise Reduction:</strong> With a limited sample budget (64 samples per pixel), importance sampling allocates those samples more effectively. The cosine hemisphere sampling wastes many samples on directions with minimal contribution to the final color.</li>
+                <li><strong>Convergence Rate:</strong> The importance sampling image has effectively converged to a much cleaner result with the same number of samples, while the cosine hemisphere sampling would require significantly more samples to achieve comparable quality.</li>
+            </ul>
+        </p>
+        <br>
+        <p><b>
+            Show at least one image with some other conductor material, replacing `eta` and `k`. Note that you should look up values for real data rather than modifying them arbitrarily. Tell us what kind of material your parameters correspond to. 
+        </b></p>
+        <p>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="dragon_coper.png" alt="Dragon with platinum material" style="width: 100%; max-width: 800px;">
+                <p>Gold dragon model rendered with platinum material parameters</p>
+            </div>
+            
+            <p>The image shows the dragon model rendered with platinum material parameters using the microfacet BRDF model. The parameters used were:</p>
+            
+            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px;">
+&lt;microfacet&gt;
+  &lt;alpha&gt;0.05&lt;/alpha&gt;
+  &lt;eta&gt;0.16 0.14 0.13&lt;/eta&gt;
+  &lt;k&gt;3.30 2.93 2.77&lt;/k&gt;
+&lt;/microfacet&gt;
+            </pre>
+            
+            <p>These values represent the optical properties of platinum:</p>
+            
+            <ul>
+                <li>The α (alpha) value of 0.05 indicates a moderately smooth surface finish, creating defined yet slightly spread specular highlights</li>
+                <li>The η (eta) values [0.16, 0.14, 0.13] represent the real part of platinum's refractive index across RGB wavelengths</li>
+                <li>The k values [3.30, 2.93, 2.77] represent platinum's extinction coefficient (imaginary part of refractive index)</li>
+            </ul>
+        </p>
+        <br>
+        
+        
+        
+
+        <h3 align="middle">Part 3. Environment Lightl</h3>
+        <b>Pick one *.exr* file to use for all subparts here. Include a converted *.jpg* of it in your website so we know what map you are using.</b>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="field.jpg" alt="Environment map" style="width: 100%; max-width: 800px;">
+            <p>The environment map used for lighting</p>
+        </div>
+        
+        <p><b>
+            In a few sentences, explain the ideas behind environment lighting (i.e. why we do it/how it works).
+        </b></p>
+        <p>
+            Environment lighting uses high dynamic range (HDR) images to represent incident light from all directions in a scene. Unlike point or directional lights that emit from specific locations, environment lights simulate illumination from an infinitely distant surrounding environment. This technique provides realistic ambient lighting and reflections that match the global context, creates visual richness with soft shadows, and efficiently simulates complex lighting conditions without modeling numerous individual light sources. Technically, an environment map is parameterized by spherical coordinates (θ, φ) and wrapped around the scene, allowing the renderer to sample incoming light from any direction.
+            </p>
+            
+        <br>
+        <p><b>
+            Show the *probability_debug.png* file for the *.exr* file you are using, generated using the `save_probability_debug()` helper function after initializing your probability distributions.
+        </b></p>
+        <p>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="probability_debug.png" alt="Probability distribution visualization" style="width: 100%; max-width: 800px;">
+                <p>Probability distribution visualization for the field environment map</p>
+            </div>
+        </p>
+        <br>
+        <p><b>
+            Use the `bunny_unlit.dae` scene and your environment map *.exr* file and render two pictures, one with uniform sampling and one with importance sampling. Use 4 samples per pixel and 64 samples per light in each. Compare noise levels. Make sure to include all screenshots.
+        </b></p>
+        <p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <img src="bunny_uniform.png" alt="Bunny with uniform sampling" style="width: 100%; max-width: 800px;">
+                    <p>Bunny rendered with uniform sampling</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="p3bunny_importance.png" alt="Bunny with importance sampling" style="width: 100%; max-width: 800px;">
+                    <p>Bunny rendered with importance sampling</p>
+                </div>
+            </div>
+            
+            <h3>Visual Analysis</h3>
+            
+            <h5>Image 1 (Uniform Sampling):</h5>
+            <ul>
+                <li>Exhibits noticeably more noise throughout the render</li>
+                <li>Contains speckled artifacts in shadow regions</li>
+                <li>Shows uneven lighting distribution on the bunny's surface</li>
+                <li>Background wheat field has more grainy appearance</li>
+            </ul>
+            
+            <h5>Image 2 (Importance Sampling):</h5>
+            <ul>
+                <li>Demonstrates significantly reduced noise levels</li>
+                <li>Presents smoother shadow transitions</li>
+                <li>Shows more consistent illumination across the model</li>
+                <li>Overall image appears more refined despite using the same sample count</li>
+            </ul>
+            
+            <h4>Technical Explanation</h4>
+            <p>The visual difference illustrates the mathematical advantage of importance sampling:</p>
+            
+            <ul>
+                <li><strong>Strategic Sample Distribution:</strong> Importance sampling concentrates computational resources on directions that contribute most significantly to the final image</li>
+                <li><strong>Variance Reduction:</strong> By allocating samples proportionally to their potential light contribution, importance sampling minimizes noise with the same overall sample budget</li>
+                <li><strong>Implementation Benefit:</strong> The 2D hierarchical sampling approach (using marginal and conditional distributions) effectively guides the path tracer to focus on high-luminance regions of the environment map</li>
+            </ul>
+            
+            <p>Even with the relatively low sample counts specified (4 samples per pixel, 64 samples per light), importance sampling produces markedly cleaner results by avoiding wasted computation on directions with minimal light contribution.</p>
+        </p>
+        <br>
+        <p><b>
+            Use a different image (if you did part 2, we recommend `bunny_microfacet_cu_unlit.dae`) and your environment map *.exr* file and render two pictures, one with uniform sampling and one with importance sampling. Use 4 samples per pixel and 64 samples per light in each. Compare noise levels. Make sure to include all screenshots.
+        </b></p>
+        <p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <img src="bunny_microfacet_uniform.png" alt="Microfacet bunny with uniform sampling" style="width: 100%; max-width: 800px;">
+                    <p>Copper microfacet bunny rendered with uniform sampling</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="p3bunny_microfacet_importance.png" alt="Microfacet bunny with importance sampling" style="width: 100%; max-width: 800px;">
+                    <p>Copper microfacet bunny rendered with importance sampling</p>
+                </div>
+            </div>
+            
+            <h3>Visual Analysis</h3>
+            
+            <h5>Image 1 (Uniform Sampling):</h5>
+            <ul>
+                <li>Displays significant noise across the metallic surface</li>
+                <li>Shows disruptive speckling in highlight regions</li>
+                <li>Contains grainier reflections, particularly on curved surfaces</li>
+                <li>Light and shadow transitions appear inconsistent</li>
+            </ul>
+            
+            <h5>Image 2 (Importance Sampling):</h5>
+            <ul>
+                <li>Exhibits markedly reduced noise in reflections</li>
+                <li>Presents more coherent specular highlights</li>
+                <li>Shows smoother transitions between light and shadow</li>
+                <li>Creates more realistic metal appearance overall</li>
+            </ul>
+            
+            <h4>Technical Insights</h4>
+            <p>This comparison reveals important characteristics of environment lighting with specular materials:</p>
+            
+            <ul>
+                <li><strong>Reflective Surface Challenges:</strong> Metallic materials amplify the differences between sampling methods because they directly reflect environment lighting rather than diffusing it</li>
+                <li><strong>Concentrated Light Paths:</strong> Importance sampling excels with metals because reflections predominantly come from specific directions that correspond to bright areas in the environment map</li>
+                <li><strong>Variance in Specular Paths:</strong> Uniform sampling struggles with specular materials as it wastes many samples on directions that contribute minimally to the final image</li>
+            </ul>
+            
+            <p>The copper material makes these differences particularly apparent because its high specular component relies heavily on accurate environment lighting. With the same computational budget, importance sampling delivers substantially cleaner results by focusing ray samples where they matter most for the final image.</p>
+        </p>
+        <br>
+
+
+
+        <h3 align="middle">Part 4. Depth of Field</h3>
+        <b>
+            For these subparts, we recommend using a microfacet BSDF scene to show off the cool out of focus effects you can get with depth of field!
+        </b>
+        <p><b>
+            In a few sentences, explain the differences between a pinhole camera model and a thin-lens camera model. 
+        </b></p>
+      
+<p>
+The pinhole camera model represents an idealized camera where all light rays pass through a single infinitesimal point, resulting in everything being perfectly in focus regardless of distance. In contrast, the thin-lens camera model simulates real cameras with a finite aperture (defined by lens radius), where only objects at a specific focal distance are in sharp focus. The thin-lens model generates multiple rays that originate from different points across the lens surface for each pixel, creating depth of field effects where objects outside the focal plane appear progressively blurrier. When the lens radius is set to zero, the thin-lens model effectively becomes a pinhole camera model.
+</p>
+        <br>
+        <p><b>
+            Show a "focus stack" where you focus at 4 visibly different depths through a scene. Make sure to include all screenshots.
+        </b></p>
+        <p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <img src="p4 fd 2.5.png" alt="Focus depth 0.03" style="width: 100%; max-width: 800px;">
+                    <p>focal distance 2.5 </p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="p4 fd 2.7.png" alt="Focus depth 0.13" style="width: 100%; max-width: 800px;">
+                    <p>focal distance 2.7</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="p4 fd 3.0.png" alt="Focus depth 0.23" style="width: 100%; max-width: 800px;">
+                    <p>focal distance 3.0</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="p4 fd 3.5.png" alt="Focus depth 0.53" style="width: 100%; max-width: 800px;">
+                    <p>focal distance 3.5</p>
+                </div>
+            </div>
+        </p>
+        <br>
+        <p><b>
+            Show a sequence of 4 pictures with visibly different aperture sizes, all focused at the same point in a scene. Make sure to include all screenshots.
+        </b></p>
+        <p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <img src="p4 0.03.png" alt="Focus depth 0.03" style="width: 100%; max-width: 800px;">
+                    <p>lens radius 0.03 </p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="p4 0.13.png" alt="Focus depth 0.13" style="width: 100%; max-width: 800px;">
+                    <p>lens radius 0.13</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="p4 0.23.png" alt="Focus depth 0.23" style="width: 100%; max-width: 800px;">
+                    <p>lens radius 0.23</p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="p4 0.53.png" alt="Focus depth 0.53" style="width: 100%; max-width: 800px;">
+                    <p>lens radius 0.53 </p>
+                </div>
+            </div>
+        </p>
+        <br>
+
+    </div>
+</body>
+</html>
+
